@@ -1,5 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart'
+    show databaseFactoryFfiWeb;
 
 class DBHelper {
   static Database? _db;
@@ -12,7 +15,14 @@ class DBHelper {
   }
 
   static Future<Database> initDB() async {
-    String path = join(await getDatabasesPath(), 'grocery_price.db');
+    late final String path;
+
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+      path = 'grocery_price_web.db';
+    } else {
+      path = join(await getDatabasesPath(), 'grocery_price.db');
+    }
     return await openDatabase(
       path,
       version: _dbVersion,
